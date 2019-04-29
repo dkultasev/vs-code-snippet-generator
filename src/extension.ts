@@ -16,7 +16,6 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 		var documentText = editor.document.getText(selectionRange);
 
-
 		vscode.window.showInputBox({
 			prompt: 'Enter snippet name'
 		}).then((name) => {
@@ -30,6 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
 					return;
 				}
 				vscode.window.showInputBox({
+					value: name,
 					prompt: 'Enter snippet description'
 				}).then((description) => {
 					if (!description) {
