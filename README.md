@@ -6,8 +6,4 @@ Simple snippet that helps to generate snippets
 
 Generates JSON snippet block for selected text
 
-## Release Notes
-
-### 0.0.1
-
-Initial release of extension
+![Generate snippet from highlight](images\generate_snippet_from_highlight.gif)
