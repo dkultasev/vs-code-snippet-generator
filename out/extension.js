@@ -31,6 +31,7 @@ function activate(context) {
                     return;
                 }
                 vscode.window.showInputBox({
+                    value: name,
                     prompt: 'Enter snippet description'
                 }).then((description) => {
                     if (!description) {
