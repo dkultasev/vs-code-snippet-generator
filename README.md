@@ -10,7 +10,7 @@ Generates JSON snippet block for selected text
 
 ## Release Notes
 
-### 0.0.2
+### 1.0.0
 
 * Description now has default value the same as the previously entered name
 * Add howto animated image
