@@ -10,6 +10,10 @@ Generates JSON snippet block for selected text
 
 ## Release Notes
 
+### 1.0.1
+
+* Release notes adjustment
+
 ### 1.0.0
 
 * Description now has default value the same as the previously entered name
@@ -17,4 +21,4 @@ Generates JSON snippet block for selected text
 
 ### 0.0.1
 
-Initial release of extension
+* Initial release of extension

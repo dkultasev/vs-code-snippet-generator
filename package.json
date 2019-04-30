@@ -3,7 +3,7 @@
 	"displayName": "VS Code Snippet Generator",
 	"description": "Generate VS Code snippet JSON block for selected text",
 	"publisher": "dkultasev",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"engines": {
 		"vscode": "^1.1.0"
 	},
