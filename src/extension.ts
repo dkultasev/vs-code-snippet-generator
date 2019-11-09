@@ -66,10 +66,10 @@ export function deactivate() { }
 
 async function getJson(body: string, prefix: string, name: string, description: string, cb: any) {
 	let object: Record<string, { prefix: string, body: string[], description: string }> = {};
-
+	const preserveIdent = vscode.workspace.getConfiguration('vs-code-snippet-generator').get('preserveIndentation');
 	object[name] = {
 		prefix: prefix,
-		body: body.split(/\r?\n/).map(line => line.trimLeft()),
+		body: body.split(/\r?\n/).map(line => (preserveIdent) ? line : line.trimLeft()),
 		description: description
 	};
 
