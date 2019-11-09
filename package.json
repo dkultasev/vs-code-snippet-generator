@@ -2,8 +2,9 @@
 	"name": "vs-code-snippet-generator",
 	"displayName": "VS Code Snippet Generator",
 	"description": "Generate VS Code snippet JSON block for selected text",
+    "icon": "images/icon.png",	
 	"publisher": "dkultasev",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"engines": {
 		"vscode": "^1.1.0"
 	},
