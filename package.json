@@ -4,7 +4,7 @@
 	"description": "Generate VS Code snippet JSON block for selected text",
     "icon": "images/icon.png",	
 	"publisher": "dkultasev",
-	"version": "0.0.3",
+	"version": "1.0.2",
 	"engines": {
 		"vscode": "^1.1.0"
 	},
