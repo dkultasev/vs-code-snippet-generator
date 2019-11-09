@@ -10,6 +10,10 @@ Generates JSON snippet block for selected text
 
 ## Release Notes
 
+### 1.0.2 (2019-11-09)
+
+* Add extension icon
+
 ### 1.0.1
 
 * Release notes adjustment
