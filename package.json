@@ -4,54 +4,103 @@
     "description": "Generate VS Code snippet JSON block for selected text or save it straight into a language snippets file",
     "icon": "images/icon.png",
     "publisher": "dkultasev",
-    "version": "1.2.0",
+    "license": "MIT",
+    "version": "1.3.0",
     "engines": {
         "vscode": "^1.75.0"
     },
     "categories": [
         "Snippets"
     ],
-    "main": "./out/extension.js",
+    "main": "./dist/extension.js",
     "contributes": {
         "configuration": {
             "type": "object",
             "title": "VS Code Snippet Generator",
             "properties": {
+                "vs-code-snippet-generator.indentation": {
+                    "type": "string",
+                    "enum": [
+                        "dedent",
+                        "trim",
+                        "preserve"
+                    ],
+                    "enumDescriptions": [
+                        "Strip only the indentation all lines share, keeping relative nesting.",
+                        "Strip all leading whitespace from every line.",
+                        "Keep every line exactly as selected."
+                    ],
+                    "default": "dedent",
+                    "description": "How leading whitespace of the selected lines is handled in the snippet body."
+                },
+                "vs-code-snippet-generator.escapeSnippetSpecialCharacters": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Escape \"$\" and \"\\\" in the snippet body so the selected text is reproduced literally instead of being interpreted as tabstops."
+                },
                 "vs-code-snippet-generator.preserveIndentation": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Preserve indentation in snippet body lines instead of trimming leading whitespace."
+                    "description": "Preserve indentation in snippet body lines instead of trimming leading whitespace.",
+                    "deprecationMessage": "Use vs-code-snippet-generator.indentation instead."
                 }
             }
         },
         "commands": [
             {
                 "command": "extension.generateSnippet",
-                "title": "Snippet: Generate snippet JSON block"
+                "title": "Snippets Generator: Generate snippet JSON block"
             },
             {
                 "command": "vs-code-snippet-generator.saveSnippet",
-                "title": "Snippet: Save snippet to language snippets file"
+                "title": "Snippets Generator: Save snippet to snippets file"
+            },
+            {
+                "command": "vs-code-snippet-generator.wrapAsTabstop",
+                "title": "Snippets Generator: Wrap selection as tabstop placeholder"
+            },
+            {
+                "command": "vs-code-snippet-generator.manageSnippets",
+                "title": "Snippets Generator: Manage saved snippets"
             }
-        ]
+        ],
+        "menus": {
+            "editor/context": [
+                {
+                    "command": "extension.generateSnippet",
+                    "when": "editorHasSelection",
+                    "group": "snippet@1"
+                },
+                {
+                    "command": "vs-code-snippet-generator.saveSnippet",
+                    "when": "editorHasSelection",
+                    "group": "snippet@2"
+                },
+                {
+                    "command": "vs-code-snippet-generator.wrapAsTabstop",
+                    "when": "editorHasSelection",
+                    "group": "snippet@3"
+                }
+            ]
+        }
     },
     "scripts": {
-        "vscode:prepublish": "npm run compile",
+        "vscode:prepublish": "npm run bundle -- --minify",
+        "bundle": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --target=node16 --main-fields=module,main",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
         "lint": "eslint src",
         "pretest": "npm run compile",
         "test": "mocha \"out/test/**/*.test.js\""
     },
-    "dependencies": {
-        "jsonc-parser": "^3.3.1"
-    },
     "devDependencies": {
         "@eslint/js": "^9.0.0",
         "@types/mocha": "^10.0.0",
         "@types/node": "^20.0.0",
         "@types/vscode": "~1.75.0",
+        "esbuild": "^0.25.0",
         "eslint": "^9.0.0",
+        "jsonc-parser": "^3.3.1",
         "mocha": "^10.0.0",
         "typescript": "^5.0.0",
         "typescript-eslint": "^8.0.0"

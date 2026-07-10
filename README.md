@@ -1,8 +1,9 @@
 # VS Code Snippet Generator
 
-Turn selected text into a VS Code snippet — either as a JSON block to paste
-somewhere yourself, or saved straight into your user snippets for a language
-of your choice.
+Turn selected text into a VS Code snippet — as a JSON block to paste somewhere
+yourself, or saved straight into user or workspace snippets for the languages
+you pick. All commands are in the command palette and in the editor
+right-click menu (when text is selected).
 
 ## Features
 
@@ -16,52 +17,50 @@ snippets file.
 
 ### Snippet: Save snippet to language snippets file
 
-Select text, run the command, answer the same prompts, then pick a language
-from the dropdown — the current file's language is detected automatically and
-suggested first. The snippet is written directly into that language's user
-snippets file (e.g. `snippets/sql.json` in your VS Code user folder) and works
-immediately. Existing comments in the snippets file are preserved, and you are
-asked before an existing snippet with the same name is overwritten.
+Select text, run the command, answer the same prompts, then:
+
+* **Pick language(s)** — the current file's language is detected automatically,
+  listed first and pre-selected; pick as many as the snippet should apply to.
+* **Pick the target** — your user snippets (available everywhere) or the
+  workspace's `.vscode` folder (shared with your team via the repo).
+
+A single language saved to user snippets goes into the classic
+`snippets/<language>.json`; multiple languages or a workspace target produce a
+`.code-snippets` file with a `scope` (e.g. `"scope": "javascript,typescript"`).
+Existing comments in snippet files are preserved, and you are asked before an
+existing snippet with the same name is overwritten.
+
+### Snippet: Wrap selection as tabstop placeholder
+
+Select the part of a snippet body that should become a placeholder and run the
+command — the selection becomes `${1:selected text}`, numbering continues from
+the highest tabstop already in the file. Works with multiple cursors.
+
+### Snippet: Manage saved snippets
+
+Browse your snippet files (user + workspace), pick a snippet, then jump to it
+in the editor or delete it.
 
 ## Extension Settings
 
-* `vs-code-snippet-generator.preserveIndentation` (default `false`): keep the
-  leading whitespace of each selected line instead of trimming it.
+* `vs-code-snippet-generator.indentation` (default `dedent`): how leading
+  whitespace is handled — `dedent` strips only the indentation all lines share
+  (keeps relative nesting), `trim` strips it all, `preserve` keeps every line
+  as selected.
+* `vs-code-snippet-generator.escapeSnippetSpecialCharacters` (default `false`):
+  escape `$` and `\` so the selected text is reproduced literally instead of
+  `$…` being interpreted as tabstops.
+* `vs-code-snippet-generator.preserveIndentation` — deprecated, use
+  `indentation` instead (still honored if you had set it).
 
-## Notes
+## Development
 
-* `$` and `\` in the selected text are kept as-is, so you can hand-edit
-  tabstops (`$1`, `${1:placeholder}`) into the generated snippet body. Escape
-  them manually (`\\$`) if you need literal characters.
+* `npm run lint` / `npm test` — ESLint + mocha unit tests.
+* `npm run bundle` — esbuild bundle to `dist/extension.js`.
+* CI (GitHub Actions) lints, tests and packages a `.vsix` artifact on every
+  push/PR; pushing a `v*` tag publishes to the marketplace (requires the
+  `VSCE_PAT` repository secret).
 
 ## Release Notes
 
-### 1.2.0
-
-* New command **Snippet: Save snippet to language snippets file** — saves the
-  snippet directly into the chosen language's user snippets file, with a
-  language dropdown that auto-detects the current file's language.
-* Fixed `preserveIndentation` setting default (was the string `"false"`, which
-  behaved as enabled) — indentation is now trimmed by default as documented.
-* Modernized the codebase: TypeScript 5, ESLint, async/await, unit tests.
-
-### 1.1.0 (2019-11-09)
-
-* Add setting to preserve indentation
-
-### 1.0.2 (2019-11-09)
-
-* Add extension icon
-
-### 1.0.1
-
-* Release notes adjustment
-
-### 1.0.0
-
-* Description now has default value the same as the previously entered name
-* Add howto animated image
-
-### 0.0.1
-
-* Initial release of extension
+See [CHANGELOG.md](CHANGELOG.md).

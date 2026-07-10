@@ -1,5 +1,24 @@
 # Change Log
 
+### 1.3.0
+
+* New indentation handling: `vs-code-snippet-generator.indentation` setting
+  with a `dedent` default that strips only the common leading whitespace so
+  relative nesting survives (`preserveIndentation` is deprecated but honored)
+* Save to **workspace snippets** (`.vscode/*.code-snippets`) and to multiple
+  languages at once (multi-select dropdown → `scope` property)
+* New command **Snippet: Wrap selection as tabstop placeholder** — turns the
+  selection into `${n:…}`, numbering past the highest existing tabstop;
+  multi-cursor aware
+* New command **Snippet: Manage saved snippets** — browse user/workspace
+  snippet files, jump to a snippet or delete it (comments preserved)
+* Optional `escapeSnippetSpecialCharacters` setting to escape `$` and `\` in
+  the generated body
+* Editor context-menu entries for the selection commands
+* Extension is now bundled with esbuild (much smaller install); MIT license
+  added; CI moved from Azure Pipelines to GitHub Actions with a tag-triggered
+  marketplace publish
+
 ### 1.2.0
 
 * New command **Snippet: Save snippet to language snippets file** — saves the
