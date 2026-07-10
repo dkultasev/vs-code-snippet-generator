@@ -3,8 +3,8 @@
 out/test/**
 src/**
 .gitignore
-vsc-extension-quickstart.md
+azure-pipelines.yml
+eslint.config.mjs
 **/tsconfig.json
-**/tslint.json
 **/*.map
 **/*.ts

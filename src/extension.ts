@@ -1,81 +1,99 @@
 import * as vscode from 'vscode';
-export function activate(context: vscode.ExtensionContext) {
 
-	let disposable = vscode.commands.registerCommand('extension.generateSnippet', () => {
-		let editor = vscode.window.activeTextEditor;
+import { pickLanguage, promptForSnippetMeta } from './prompts';
+import { buildSnippet, renderSnippetBlock } from './snippet';
+import { listSnippetNames, upsertSnippet } from './snippetsFile';
+import { getSnippetsFileUri, readFileIfExists, writeTextFile } from './userSnippets';
 
-		if (!editor) {
-			return;
-		}
-
-		const position = editor.selection.active;
-
-		const selectionRange = new vscode.Range(
-			editor.selection.start,
-			editor.selection.end
-		);
-		var documentText = editor.document.getText(selectionRange);
-
-		vscode.window.showInputBox({
-			prompt: 'Enter snippet name'
-		}).then((name) => {
-			if (!name) {
-				return;
-			}
-			vscode.window.showInputBox({
-				prompt: 'Enter snippet prefix'
-			}).then((prefix) => {
-				if (!prefix) {
-					return;
-				}
-				vscode.window.showInputBox({
-					value: name,
-					prompt: 'Enter snippet description'
-				}).then((description) => {
-					if (!description) {
-						return;
-					}
-					getJson(documentText, prefix, name, description, (text: string) => {
-						if (!editor) {
-							return;
-						}
-
-						editor.edit((textEdit) => {
-							textEdit.delete(selectionRange);
-							textEdit.insert(position, text);
-
-						});
-					});
-
-				}, (error) => {
-					console.log(error);
-				});
-			}, (error) => {
-				console.log(error);
-			});
-		}, (error) => {
-			console.log(error);
-		});
-	});
-
-	context.subscriptions.push(disposable);
+function preserveIndentation(): boolean {
+    return vscode.workspace
+        .getConfiguration('vs-code-snippet-generator')
+        .get<boolean>('preserveIndentation', false);
 }
 
-export function deactivate() { }
+async function generateSnippet(): Promise<void> {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        return;
+    }
+    const selection = editor.selection;
+    const text = editor.document.getText(selection);
 
+    const meta = await promptForSnippetMeta();
+    if (!meta) {
+        return;
+    }
 
-async function getJson(body: string, prefix: string, name: string, description: string, cb: any) {
-	let object: Record<string, { prefix: string, body: string[], description: string }> = {};
-	const preserveIdent = vscode.workspace.getConfiguration('vs-code-snippet-generator').get('preserveIndentation');
-	object[name] = {
-		prefix: prefix,
-		body: body.split(/\r?\n/).map(line => (preserveIdent) ? line : line.trimLeft()),
-		description: description
-	};
-
-	let resultArray = JSON.stringify(object, null, 4).split(/\r?\n/);
-	resultArray = resultArray.slice(1, resultArray.length - 1);
-	let finalResult = resultArray.join('\n');
-	cb(finalResult);
+    const snippet = buildSnippet(text, meta.prefix, meta.description, preserveIndentation());
+    const block = renderSnippetBlock(meta.name, snippet);
+    await editor.edit((edit) => edit.replace(selection, block));
 }
 
+async function saveSnippet(context: vscode.ExtensionContext): Promise<void> {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor || editor.selection.isEmpty) {
+        void vscode.window.showWarningMessage('Select the text to save as a snippet first.');
+        return;
+    }
+    const text = editor.document.getText(editor.selection);
+
+    const meta = await promptForSnippetMeta();
+    if (!meta) {
+        return;
+    }
+
+    const languages = await vscode.languages.getLanguages();
+    const language = await pickLanguage(languages, editor.document.languageId);
+    if (!language) {
+        return;
+    }
+
+    const fileUri = getSnippetsFileUri(context, language);
+    const existing = await readFileIfExists(fileUri);
+    if (existing !== undefined && listSnippetNames(existing).includes(meta.name)) {
+        const choice = await vscode.window.showWarningMessage(
+            `Snippet "${meta.name}" already exists in ${language}.json. Overwrite it?`,
+            { modal: true },
+            'Overwrite'
+        );
+        if (choice !== 'Overwrite') {
+            return;
+        }
+    }
+
+    const snippet = buildSnippet(text, meta.prefix, meta.description, preserveIndentation());
+    await writeTextFile(fileUri, upsertSnippet(existing ?? '', meta.name, snippet));
+
+    const open = await vscode.window.showInformationMessage(
+        `Saved snippet "${meta.name}" to ${language}.json.`,
+        'Open file'
+    );
+    if (open === 'Open file') {
+        await vscode.window.showTextDocument(fileUri);
+    }
+}
+
+function withErrorReporting(run: () => Promise<void>): () => Promise<void> {
+    return async () => {
+        try {
+            await run();
+        } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            void vscode.window.showErrorMessage(`Snippet generator: ${message}`);
+        }
+    };
+}
+
+export function activate(context: vscode.ExtensionContext): void {
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.generateSnippet', withErrorReporting(generateSnippet)),
+        vscode.commands.registerCommand(
+            'vs-code-snippet-generator.saveSnippet',
+            withErrorReporting(() => saveSnippet(context))
+        )
+    );
+}
+
+export function deactivate(): void {
+    // nothing to clean up
+}
