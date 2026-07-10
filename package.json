@@ -93,6 +93,9 @@
         "pretest": "npm run compile",
         "test": "mocha \"out/test/**/*.test.js\""
     },
+    "overrides": {
+        "serialize-javascript": "^7.0.5"
+    },
     "devDependencies": {
         "@eslint/js": "^9.0.0",
         "@types/mocha": "^10.0.0",
